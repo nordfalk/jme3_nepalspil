@@ -10,6 +10,7 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 
 /**
@@ -22,6 +23,15 @@ public class Main extends SimpleApplication {
     public static void main(String[] args) {
         Main app = new Main();
         app.setShowSettings(false);
+
+        AppSettings settings = new AppSettings(true);
+        settings.put("Width", 1280);
+        settings.put("Height", 720);
+        settings.put("Title", "Nepalspillet - Jacob Nordfalk");
+        settings.put("VSync", true);
+        settings.put("Samples", 4); //Anti-Aliasing
+        app.setSettings(settings);
+        
         app.start();
     }
 
