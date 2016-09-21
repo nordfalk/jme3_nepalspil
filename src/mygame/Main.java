@@ -1,9 +1,7 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.TextureKey;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -12,6 +10,8 @@ import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * This is the Main Class of your Game. You should only do initialization here.
@@ -35,6 +35,9 @@ public class Main extends SimpleApplication {
         app.start();
     }
 
+    ArrayList<Spatial> felter = new ArrayList<>();
+    ArrayList<Spiller> spillere = new ArrayList<>();
+    
     @Override
     public void simpleInitApp() {
 
@@ -46,8 +49,25 @@ public class Main extends SimpleApplication {
         abishakBrik.getLocalTranslation().x += 2;
         bishalBrik.getLocalTranslation().x -= 3;
         
+        spillere.addAll(Arrays.asList(
+            new Spiller(laxmiBrik, "Laxmi"),
+            new Spiller(abishakBrik, "Abishak"),
+            new Spiller(bishalBrik, "Bishal")));       
         
         rootNode.attachChild(assetManager.loadModel("Scenes/spilScene.j3o"));
+
+        //Spatial f1 = rootNode.getChild("Felt1");
+        //abishakBrik.setLocalTranslation(f1.getWorldTranslation());
+        
+        for (int i=1; ; i++) {
+            Spatial felt = rootNode.getChild("Felt"+i);
+            System.out.println("felt= "+ felt);
+            if (felt==null) break;
+            felt.setUserData("nummer", i);
+            felter.add(felt);
+        }
+        System.out.println("felter= "+ felter);
+                
         rootNode.attachChild(laxmiBrik);
         rootNode.attachChild(abishakBrik);
         rootNode.attachChild(bishalBrik);
@@ -82,6 +102,21 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleUpdate(float tpf) {
         //TODO: add update code
+        if (this.timer.getTime() % 50 == 0) {
+            Spiller sp  = spillere.get((int) (Math.random()*spillere.size()));
+            sp.feltNr = (sp.feltNr+1) % felter.size();
+            if (sp.feltNr == 0) {
+                System.out.println("Hurra spilleren er færdig! " + sp.navn );
+                Spatial felt = rootNode.getChild("Målfelt");
+                sp.brik.setLocalTranslation(felt.getLocalTranslation());
+                sp.brik.setLocalRotation(felt.getLocalRotation());
+            } else {
+                Spatial felt = felter.get(sp.feltNr);
+                sp.brik.setLocalTranslation(felt.getLocalTranslation());
+                sp.brik.setLocalRotation(felt.getLocalRotation());
+                System.out.println("Rykker "+sp.navn+" til "+felt);                
+            }
+        }
     }
 
     @Override
