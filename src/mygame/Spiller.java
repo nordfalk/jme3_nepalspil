@@ -13,12 +13,12 @@ import com.jme3.scene.Node;
  */
 class Spiller {
 
-    public final Node brik;
+    public final Node node;
     public final String navn;
     int feltNr;
 
     Spiller(Node laxmiBrik, String laxmi) {
-        brik = laxmiBrik;
+        node = laxmiBrik;
         navn = laxmi;
     }
     

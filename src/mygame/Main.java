@@ -1,6 +1,11 @@
 package mygame;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.input.MouseInput;
+import com.jme3.input.controls.ActionListener;
+import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -37,9 +42,11 @@ public class Main extends SimpleApplication {
 
     ArrayList<Spatial> felter = new ArrayList<>();
     ArrayList<Spiller> spillere = new ArrayList<>();
+    private Material fodMat;
     
     @Override
     public void simpleInitApp() {
+        Texture manoj = assetManager.loadTexture("Textures/klippet-manoj.png");
 
         Node laxmiBrik = lavBrik(assetManager.loadTexture("Textures/klippet-laxmi.png"));
         Node abishakBrik = lavBrik(assetManager.loadTexture("Textures/klippet-abishak.png"));
@@ -75,10 +82,47 @@ public class Main extends SimpleApplication {
         // Ryk kameraet op og til siden
         cam.setLocation( cam.getLocation().add(2, 3, -3));
         cam.lookAt(new Vector3f(), new Vector3f(0, 1, 0)); // peg det ind på spillepladen
+        
+        
+        inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
+        inputManager.addListener(actionListener, "shoot");  
+        bulletAppState = new BulletAppState();
+        stateManager.attach(bulletAppState);
     }
 
+    private ActionListener actionListener = new ActionListener() {
+        @Override
+        public void onAction(String name, boolean keyPressed, float tpf) {
+          if (name.equals("shoot") && !keyPressed) {
+            makeCannonBall();
+          }
+        }
+      };
+    
+    private BulletAppState bulletAppState;
+    
+  /** This method creates one individual physical cannon ball.
+   * By defaul, the ball is accelerated and flies
+   * from the camera position in the camera direction.*/
+   public void makeCannonBall() {
+    /** Create a cannon ball geometry and attach to scene graph. */
+    Geometry ball_geo = new Geometry("cannon ball", new Box(0.1f,0.1f,0.1f));
+    ball_geo.setMaterial(fodMat);
+    rootNode.attachChild(ball_geo);
+    /** Position the cannon ball  */
+    ball_geo.setLocalTranslation(cam.getLocation());
+        /** Make the ball physcial with a mass > 0.0f */
+        RigidBodyControl ball_phy = new RigidBodyControl(1f);
+    /** Add physical ball to physics space. */
+    ball_geo.addControl(ball_phy);
+    bulletAppState.getPhysicsSpace().add(ball_phy);
+    /** Accelerate the physcial ball to shoot it. */
+    ball_phy.setLinearVelocity(cam.getDirection().mult(25));
+  }
+    
+    
     private Node lavBrik(Texture billede) {
-        Material fodMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        fodMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         fodMat.setTexture("ColorMap", assetManager.loadTexture("Textures/dirt.jpg"));
         Spatial fod = assetManager.loadModel("Models/nepalbrik-fod/nepalbrik-fodfbx.j3o");
         fod.setMaterial(fodMat);
@@ -95,25 +139,24 @@ public class Main extends SimpleApplication {
         fodOgBilledeNode.attachChild(billedeNode);
         fodOgBilledeNode.attachChild(fod);
         fodOgBilledeNode.scale(0.5f);
-        fodOgBilledeNode.getLocalTranslation().z += 2.5f;
         return fodOgBilledeNode;
     }
 
     @Override
     public void simpleUpdate(float tpf) {
         //TODO: add update code
-        if (this.timer.getTime() % 50 == 0) {
+        if (this.timer.getTime() % 2 == 0) {
             Spiller sp  = spillere.get((int) (Math.random()*spillere.size()));
             sp.feltNr = (sp.feltNr+1) % felter.size();
             if (sp.feltNr == 0) {
                 System.out.println("Hurra spilleren er færdig! " + sp.navn );
                 Spatial felt = rootNode.getChild("Målfelt");
-                sp.brik.setLocalTranslation(felt.getLocalTranslation());
-                sp.brik.setLocalRotation(felt.getLocalRotation());
+                sp.node.setLocalTranslation(felt.getLocalTranslation());
+                sp.node.setLocalRotation(felt.getLocalRotation());
             } else {
                 Spatial felt = felter.get(sp.feltNr);
-                sp.brik.setLocalTranslation(felt.getLocalTranslation());
-                sp.brik.setLocalRotation(felt.getLocalRotation());
+                sp.node.setLocalTranslation(felt.getLocalTranslation());
+                sp.node.setLocalRotation(felt.getLocalRotation());
                 System.out.println("Rykker "+sp.navn+" til "+felt);                
             }
         }
