@@ -120,7 +120,7 @@ public class Main extends SimpleApplication {
     ball_geo.addControl(ball_phy);
     bulletAppState.getPhysicsSpace().add(ball_phy);
     /** Accelerate the physcial ball to shoot it. */
-    ball_phy.setLinearVelocity(cam.getDirection().mult(25));
+    ball_phy.setLinearVelocity(cam.getDirection().mult(25).add(0, 5, 0));
   }
     
     
@@ -178,7 +178,7 @@ public class Main extends SimpleApplication {
         float inter = interpolation;
         inter = (inter*inter);
         //inter = (inter*inter*inter + 1-(1-inter)*(1-inter)*(1-inter))/2;
-        System.out.printf("interpolation=%.2f  inter=%.2f\n", interpolation, inter);
+        //System.out.printf("interpolation=%.2f  inter=%.2f\n", interpolation, inter);
         for (Spiller sp : spillere) {
             if (sp.rykFra == sp.rykTil) continue;
             Transform spt = sp.node.getLocalTransform();
@@ -186,7 +186,7 @@ public class Main extends SimpleApplication {
             spt.getRotation().slerp(sp.rykFra.getRotation(), sp.rykTil.getRotation(), inter);
             Vector3f fra = sp.rykFra.getTranslation();
             Vector3f til = sp.rykTil.getTranslation();
-            Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(Vector3f.UNIT_Y);
+            Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(0, 3, 0);
             FastMath.interpolateBezier(inter, fra, midt, midt, til, spt.getTranslation());
             sp.node.setLocalTransform(spt);
             if (interpolation==1) {
