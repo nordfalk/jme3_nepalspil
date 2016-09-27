@@ -7,6 +7,8 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -170,19 +172,22 @@ public class Main extends SimpleApplication {
         }
 
         if (interpolation==1) return;
-        interpolation += tpf*2;
+        interpolation += tpf*3;
         if (interpolation>1) {
             interpolation = 1;
         }
-        System.out.println("interpolation=" + interpolation);
+        float inter = interpolation;
+        inter = (inter*inter);
+        //inter = (inter*inter*inter + 1-(1-inter)*(1-inter)*(1-inter))/2;
+        System.out.printf("interpolation=%.2f  inter=%.2f\n", interpolation, inter);
         for (Spiller sp : spillere) {
             Transform spt = sp.node.getLocalTransform();
-            spt.interpolateTransforms(sp.rykFra, sp.rykTil, interpolation);
-            /*
-            sp.getTranslation().interpolateLocal(sp.rykFra, sp.rykTil, interpolation)
-            sp.setTranslation((sp.rykFra, sp.rykTil, interpolation);
-            sp.interpolateTransforms(sp.rykFra, sp.rykTil, interpolation);
-*/
+            //spt.interpolateTransforms(sp.rykFra, sp.rykTil, interpolation); // ryk uden at hoppe
+            spt.getRotation().slerp(sp.rykFra.getRotation(), sp.rykTil.getRotation(), inter);
+            Vector3f fra = sp.rykFra.getTranslation();
+            Vector3f til = sp.rykTil.getTranslation();
+            Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(Vector3f.UNIT_Y);
+            FastMath.interpolateBezier(inter, fra, midt, midt, til, spt.getTranslation());
             sp.node.setLocalTransform(spt);
         }
 
