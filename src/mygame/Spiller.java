@@ -5,7 +5,9 @@
  */
 package mygame;
 
+import com.jme3.math.Transform;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 
 /**
  *
@@ -16,6 +18,8 @@ class Spiller {
     public final Node node;
     public final String navn;
     int feltNr;
+    Transform rykFra;
+    Transform rykTil;
 
     Spiller(Node laxmiBrik, String laxmi) {
         node = laxmiBrik;

@@ -7,6 +7,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.material.Material;
+import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Geometry;
@@ -141,25 +142,60 @@ public class Main extends SimpleApplication {
         fodOgBilledeNode.scale(0.5f);
         return fodOgBilledeNode;
     }
+    
+    float tidTilRyk = 1;
+    float interpolation = 1;
 
     @Override
     public void simpleUpdate(float tpf) {
-        //TODO: add update code
-        if (this.timer.getTime() % 2 == 0) {
-            Spiller sp  = spillere.get((int) (Math.random()*spillere.size()));
-            sp.feltNr = (sp.feltNr+1) % felter.size();
-            if (sp.feltNr == 0) {
-                System.out.println("Hurra spilleren er færdig! " + sp.navn );
-                Spatial felt = rootNode.getChild("Målfelt");
-                sp.node.setLocalTranslation(felt.getLocalTranslation());
-                sp.node.setLocalRotation(felt.getLocalRotation());
-            } else {
+        
+        tidTilRyk = tidTilRyk - tpf;
+        if (tidTilRyk<0) {
+            System.out.println("Tid til at rykke!");
+            tidTilRyk = 1;
+            
+            for (Spiller sp : spillere) {
+                // Spiller sp  = spillere.get((int) (Math.random()*spillere.size()));
+                int slag = 1 + (int) (6*Math.random());
+                
+                sp.rykFra = felter.get(sp.feltNr).getLocalTransform();
+                sp.feltNr = (sp.feltNr+ slag) % felter.size();
+                sp.rykTil = felter.get(sp.feltNr).getLocalTransform();
                 Spatial felt = felter.get(sp.feltNr);
+          
                 sp.node.setLocalTranslation(felt.getLocalTranslation());
                 sp.node.setLocalRotation(felt.getLocalRotation());
-                System.out.println("Rykker "+sp.navn+" til "+felt);                
+                interpolation = 0;
             }
         }
+
+        if (interpolation==1) return;
+        interpolation += tpf*2;
+        if (interpolation>1) {
+            interpolation = 1;
+        }
+        System.out.println("interpolation=" + interpolation);
+        for (Spiller sp : spillere) {
+            Transform spt = sp.node.getLocalTransform();
+            spt.interpolateTransforms(sp.rykFra, sp.rykTil, interpolation);
+            /*
+            sp.getTranslation().interpolateLocal(sp.rykFra, sp.rykTil, interpolation)
+            sp.setTranslation((sp.rykFra, sp.rykTil, interpolation);
+            sp.interpolateTransforms(sp.rykFra, sp.rykTil, interpolation);
+*/
+            sp.node.setLocalTransform(spt);
+        }
+
+/*        
+        if (sp.feltNr == 0) {
+            System.out.println("Hurra spilleren er færdig! " + sp.navn );
+        } else {
+            Spatial felt = felter.get(sp.feltNr);
+            sp.node.setLocalTranslation(felt.getLocalTranslation());
+            sp.node.setLocalRotation(felt.getLocalRotation());
+            System.out.println("Rykker "+sp.navn+" til "+felt);                
+        }
+*/
     }
 
     @Override
