@@ -154,21 +154,20 @@ public class Main extends SimpleApplication {
         tidTilRyk = tidTilRyk - tpf;
         if (tidTilRyk<0) {
             System.out.println("Tid til at rykke!");
-            tidTilRyk = 1;
+            tidTilRyk = 0.5f;
             
-            for (Spiller sp : spillere) {
-                // Spiller sp  = spillere.get((int) (Math.random()*spillere.size()));
-                int slag = 1 + (int) (6*Math.random());
-                
-                sp.rykFra = felter.get(sp.feltNr).getLocalTransform();
-                sp.feltNr = (sp.feltNr+ slag) % felter.size();
-                sp.rykTil = felter.get(sp.feltNr).getLocalTransform();
-                Spatial felt = felter.get(sp.feltNr);
-          
-                sp.node.setLocalTranslation(felt.getLocalTranslation());
-                sp.node.setLocalRotation(felt.getLocalRotation());
-                interpolation = 0;
-            }
+            Spiller sp  = spillere.get((int) (Math.random()*spillere.size()));
+            int slag = 1 + (int) (6*Math.random());
+
+            sp.rykFra = felter.get(sp.feltNr).getLocalTransform();
+            sp.feltNr = (sp.feltNr+ slag) % felter.size();
+            sp.rykTil = felter.get(sp.feltNr).getLocalTransform().clone(); // Variér position lidt
+            sp.rykTil.getTranslation().addLocal(FastMath.rand.nextFloat()/5-0.1f, 0, FastMath.rand.nextFloat()/5-0.1f);
+            Spatial felt = felter.get(sp.feltNr);
+
+            sp.node.setLocalTranslation(felt.getLocalTranslation());
+            sp.node.setLocalRotation(felt.getLocalRotation());
+            interpolation = 0;
         }
 
         if (interpolation==1) return;
@@ -181,6 +180,7 @@ public class Main extends SimpleApplication {
         //inter = (inter*inter*inter + 1-(1-inter)*(1-inter)*(1-inter))/2;
         System.out.printf("interpolation=%.2f  inter=%.2f\n", interpolation, inter);
         for (Spiller sp : spillere) {
+            if (sp.rykFra == sp.rykTil) continue;
             Transform spt = sp.node.getLocalTransform();
             //spt.interpolateTransforms(sp.rykFra, sp.rykTil, interpolation); // ryk uden at hoppe
             spt.getRotation().slerp(sp.rykFra.getRotation(), sp.rykTil.getRotation(), inter);
@@ -189,6 +189,9 @@ public class Main extends SimpleApplication {
             Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(Vector3f.UNIT_Y);
             FastMath.interpolateBezier(inter, fra, midt, midt, til, spt.getTranslation());
             sp.node.setLocalTransform(spt);
+            if (interpolation==1) {
+                sp.rykFra = sp.rykTil;
+            }
         }
 
 /*        
