@@ -43,6 +43,7 @@ public class Main extends SimpleApplication {
         app.start();
     }
 
+    /*
     // Nødvendig?
     @Override
     public void setSettings(AppSettings settings) {
@@ -51,6 +52,7 @@ public class Main extends SimpleApplication {
         System.out.println("XXX setSettings "+settings);
         super.setSettings(settings); 
     }
+    */
     
 
     ArrayList<Spatial> felter = new ArrayList<>();
@@ -196,7 +198,7 @@ public class Main extends SimpleApplication {
             spt.getRotation().slerp(sp.rykFra.getRotation(), sp.rykTil.getRotation(), inter);
             Vector3f fra = sp.rykFra.getTranslation();
             Vector3f til = sp.rykTil.getTranslation();
-            Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(0, 3, 0);
+            Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(0, 1, 0);
             FastMath.interpolateBezier(inter, fra, midt, midt, til, spt.getTranslation());
             sp.node.setLocalTransform(spt);
             if (interpolation==1) {
