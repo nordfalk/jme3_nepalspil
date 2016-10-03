@@ -73,8 +73,8 @@ public class MainActivity extends Activity {
             // Set application exit settings
             finishOnAppStop = true;
             handleExitHook = true;
-            exitDialogTitle = "Do you want to exit?";
-            exitDialogMessage = "Use your home key to bring this app into the background or exit to terminate it.";
+            exitDialogTitle = "Afslut?";
+            exitDialogMessage = "Vil du afslutte ?";
  
             // Set splash screen resource id, if used
             // (default = 0, no splash screen)

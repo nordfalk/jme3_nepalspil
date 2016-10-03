@@ -43,6 +43,16 @@ public class Main extends SimpleApplication {
         app.start();
     }
 
+    // Nødvendig?
+    @Override
+    public void setSettings(AppSettings settings) {
+        settings.setRenderer(AppSettings.LWJGL_OPENGL3);
+        settings.setAudioRenderer(AppSettings.ANDROID_MEDIAPLAYER);
+        System.out.println("XXX setSettings "+settings);
+        super.setSettings(settings); 
+    }
+    
+
     ArrayList<Spatial> felter = new ArrayList<>();
     ArrayList<Spiller> spillere = new ArrayList<>();
     private Material fodMat;
