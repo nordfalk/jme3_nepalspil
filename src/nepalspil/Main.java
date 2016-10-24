@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * 
+ *
  * @author Jacob Nordfalk
  */
 public class Main extends SimpleApplication {
@@ -45,7 +45,7 @@ public class Main extends SimpleApplication {
         settings.put("VSync", true);
         settings.put("Samples", 4); //Anti-Aliasing
         app.setSettings(settings);
-        
+
         app.start();
     }
 
@@ -58,56 +58,75 @@ public class Main extends SimpleApplication {
         System.out.println("XXX setSettings "+settings);
         super.setSettings(settings); 
     }
-    */
-    
+     */
 
+    private Node lavSpillerbrik(Texture billede) {
+        Material fodMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        fodMat.setTexture("ColorMap", assetManager.loadTexture("Textures/dirt.jpg"));
+        Spatial fod = assetManager.loadModel("Models/nepalbrik-fod/nepalbrik-fodfbx.j3o");
+        fod.setMaterial(fodMat);
+
+        Geometry brikGeom = new Geometry("Brikbillede", new Box(1, 2, 0.1f));
+        Node billedeNode = new Node();
+        billedeNode.attachChild(brikGeom);
+        billedeNode.setLocalTranslation(0, 3, 0);
+        Material laxmiMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        laxmiMat.setTexture("ColorMap", billede);
+        brikGeom.setMaterial(laxmiMat);
+
+        Node fodOgBilledeNode = new Node(billede.getName());
+        fodOgBilledeNode.attachChild(billedeNode);
+        fodOgBilledeNode.attachChild(fod);
+        fodOgBilledeNode.scale(0.5f);
+        return fodOgBilledeNode;
+    }
+    
     ArrayList<Spatial> felter = new ArrayList<>();
     ArrayList<Spiller> spillere = new ArrayList<>();
-    private Material fodMat;
-    
+
     @Override
     public void simpleInitApp() {
-        Texture manoj = assetManager.loadTexture("Textures/klippet-manoj.png");
-
-        Node laxmiBrik = lavBrik(assetManager.loadTexture("Textures/klippet-laxmi.png"));
-        Node abishakBrik = lavBrik(assetManager.loadTexture("Textures/klippet-abishak.png"));
-        Node bishalBrik = lavBrik(assetManager.loadTexture("Textures/klippet-bishal.png"));
+        Node manojBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-manoj.png"));
+        Node laxmiBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-laxmi.png"));
+        Node abishakBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-abishak.png"));
+        Node bishalBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-bishal.png"));
         abishakBrik.rotate(0, 10, 0).scale(0.6f);
         bishalBrik.rotate(0, 10, 0).scale(0.6f);;
         abishakBrik.getLocalTranslation().x += 2;
         bishalBrik.getLocalTranslation().x -= 3;
-        
+
         spillere.addAll(Arrays.asList(
-            new Spiller(laxmiBrik, "Laxmi"),
-            new Spiller(abishakBrik, "Abishak"),
-            new Spiller(bishalBrik, "Bishal")));       
-        
-        Spatial scene;
-        rootNode.attachChild(scene = assetManager.loadModel("Scenes/spilScene.j3o"));
-
-        
-        for (int i=1; ; i++) {
-            Spatial felt = rootNode.getChild("Felt"+i);
-            if (felt==null) break;
-            felt.setUserData("nummer", i);
-            felter.add(felt);
-        }
-        System.out.println("felter= "+ felter);
-
+                new Spiller(manojBrik, "Manoj"),
+                new Spiller(laxmiBrik, "Laxmi"),
+                new Spiller(abishakBrik, "Abishak"),
+                new Spiller(bishalBrik, "Bishal")));
+        rootNode.attachChild(manojBrik);
         rootNode.attachChild(laxmiBrik);
         rootNode.attachChild(abishakBrik);
         rootNode.attachChild(bishalBrik);
-    /** A white, directional light source */ 
-    DirectionalLight sun = new DirectionalLight();
-    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalizeLocal());
-    sun.setColor(ColorRGBA.White);
-    rootNode.addLight(sun); 
-    
+
+
+        Spatial scene = assetManager.loadModel("Scenes/spilScene.j3o");
+        rootNode.attachChild(scene);
+
+        for (int i = 1;; i++) {
+            Spatial felt = rootNode.getChild("Felt" + i);
+            if (felt == null) {
+                break;
+            }
+            felter.add(felt);
+        }
+        System.out.println("felter= " + felter);
+
+        DirectionalLight sun = new DirectionalLight();
+        sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalizeLocal());
+        sun.setColor(ColorRGBA.White);
+        rootNode.addLight(sun);
+
         DirectionalLight l = (DirectionalLight) scene.getLocalLightList().get(0); //  new DirectionalLight();
         //l.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f));
         //l.setDirection(new Vector3f(-1, -1, -1));
-        
-        
+
         int SHADOWMAP_SIZE = 1024;
         DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE, 3);
         dlsr.setLight(l);
@@ -119,12 +138,12 @@ public class Main extends SimpleApplication {
         rootNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
         rootNode.setCullHint(Spatial.CullHint.Never);
         // Ryk kameraet op og til siden
-        cam.setLocation( cam.getLocation().add(2, 3, -3));
+        cam.setLocation(cam.getLocation().add(2, 3, -3));
         cam.lookAt(new Vector3f(), new Vector3f(0, 1, 0)); // peg det ind på spillepladen
         flyCam.setMoveSpeed(25);
-        
+
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        inputManager.addListener(actionListener, "shoot");  
+        inputManager.addListener(actionListener, "shoot");
         bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
     }
@@ -132,73 +151,62 @@ public class Main extends SimpleApplication {
     private ActionListener actionListener = new ActionListener() {
         @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
-          if (name.equals("shoot") && !keyPressed) {
-            makeCannonBall();
-          }
+            if (name.equals("shoot") && !keyPressed) {
+                makeCannonBall();
+            }
         }
-      };
-    
+    };
+
     private BulletAppState bulletAppState;
-    
-  /** This method creates one individual physical cannon ball.
-   * By defaul, the ball is accelerated and flies
-   * from the camera position in the camera direction.*/
-   public void makeCannonBall() {
-    /** Create a cannon ball geometry and attach to scene graph. */
-    Geometry ball_geo = new Geometry("cannon ball", new Box(0.1f,0.1f,0.1f));
-    ball_geo.setMaterial(fodMat);
-    rootNode.attachChild(ball_geo);
-    /** Position the cannon ball  */
-    ball_geo.setLocalTranslation(cam.getLocation());
-        /** Make the ball physcial with a mass > 0.0f */
+
+    /**
+     * This method creates one individual physical cannon ball. By defaul, the
+     * ball is accelerated and flies from the camera position in the camera direction.
+     */
+    public void makeCannonBall() {
+        /**
+         * Create a cannon ball geometry and attach to scene graph.
+         */
+        Geometry ball_geo = new Geometry("cannon ball", new Box(0.1f, 0.1f, 0.1f));
+        ball_geo.setMaterial(new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md"));
+        rootNode.attachChild(ball_geo);
+        /**
+         * Position the cannon ball
+         */
+        ball_geo.setLocalTranslation(cam.getLocation());
+        /**
+         * Make the ball physcial with a mass > 0.0f
+         */
         RigidBodyControl ball_phy = new RigidBodyControl(1f);
-    /** Add physical ball to physics space. */
-    ball_geo.addControl(ball_phy);
-    bulletAppState.getPhysicsSpace().add(ball_phy);
-    /** Accelerate the physcial ball to shoot it. */
-    ball_phy.setLinearVelocity(cam.getDirection().mult(25).add(0, 5, 0));
-  }
-    
-    
-    private Node lavBrik(Texture billede) {
-        fodMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        fodMat.setTexture("ColorMap", assetManager.loadTexture("Textures/dirt.jpg"));
-        Spatial fod = assetManager.loadModel("Models/nepalbrik-fod/nepalbrik-fodfbx.j3o");
-        fod.setMaterial(fodMat);
-        
-        Geometry brikGeom = new Geometry("Brikbillede", new Box(1, 2, 0.1f));        
-        Node billedeNode = new Node();
-        billedeNode.attachChild(brikGeom);
-        billedeNode.setLocalTranslation(0, 3, 0);
-        Material laxmiMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        laxmiMat.setTexture("ColorMap", billede);
-        brikGeom.setMaterial(laxmiMat);
-        
-        Node fodOgBilledeNode = new Node(billede.getName());
-        fodOgBilledeNode.attachChild(billedeNode);
-        fodOgBilledeNode.attachChild(fod);
-        fodOgBilledeNode.scale(0.5f);
-        return fodOgBilledeNode;
+        /**
+         * Add physical ball to physics space.
+         */
+        ball_geo.addControl(ball_phy);
+        bulletAppState.getPhysicsSpace().add(ball_phy);
+        /**
+         * Accelerate the physcial ball to shoot it.
+         */
+        ball_phy.setLinearVelocity(cam.getDirection().mult(25).add(0, 5, 0));
     }
-    
+
     float tidTilRyk = 1;
     float interpolation = 1;
 
     @Override
     public void simpleUpdate(float tpf) {
-        
+
         tidTilRyk = tidTilRyk - tpf;
-        if (tidTilRyk<0) {
+        if (tidTilRyk < 0) {
             System.out.println("Tid til at rykke!");
             tidTilRyk = 0.5f;
-            
-            Spiller sp  = spillere.get((int) (Math.random()*spillere.size()));
-            int slag = 1 + (int) (6*Math.random());
+
+            Spiller sp = spillere.get((int) (Math.random() * spillere.size()));
+            int slag = 1 + (int) (6 * Math.random());
 
             sp.rykFra = felter.get(sp.feltNr).getLocalTransform();
-            sp.feltNr = (sp.feltNr+ slag) % felter.size();
+            sp.feltNr = (sp.feltNr + slag) % felter.size();
             sp.rykTil = felter.get(sp.feltNr).getLocalTransform().clone(); // Variér position lidt
-            sp.rykTil.getTranslation().addLocal(FastMath.rand.nextFloat()/5-0.1f, 0, FastMath.rand.nextFloat()/5-0.1f);
+            sp.rykTil.getTranslation().addLocal(FastMath.rand.nextFloat() / 5 - 0.1f, 0, FastMath.rand.nextFloat() / 5 - 0.1f);
             Spatial felt = felter.get(sp.feltNr);
 
             sp.node.setLocalTranslation(felt.getLocalTranslation());
@@ -206,17 +214,21 @@ public class Main extends SimpleApplication {
             interpolation = 0;
         }
 
-        if (interpolation==1) return;
-        interpolation += tpf*3;
-        if (interpolation>1) {
+        if (interpolation == 1) {
+            return;
+        }
+        interpolation += tpf * 3;
+        if (interpolation > 1) {
             interpolation = 1;
         }
         float inter = interpolation;
-        inter = (inter*inter);
+        inter = (inter * inter);
         //inter = (inter*inter*inter + 1-(1-inter)*(1-inter)*(1-inter))/2;
         //System.out.printf("interpolation=%.2f  inter=%.2f\n", interpolation, inter);
         for (Spiller sp : spillere) {
-            if (sp.rykFra == sp.rykTil) continue;
+            if (sp.rykFra == sp.rykTil) {
+                continue;
+            }
             Transform spt = sp.node.getLocalTransform();
             //spt.interpolateTransforms(sp.rykFra, sp.rykTil, interpolation); // ryk uden at hoppe
             spt.getRotation().slerp(sp.rykFra.getRotation(), sp.rykTil.getRotation(), inter);
@@ -225,7 +237,7 @@ public class Main extends SimpleApplication {
             Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(0, 1, 0);
             FastMath.interpolateBezier(inter, fra, midt, midt, til, spt.getTranslation());
             sp.node.setLocalTransform(spt);
-            if (interpolation==1) {
+            if (interpolation == 1) {
                 sp.rykFra = sp.rykTil;
             }
         }
