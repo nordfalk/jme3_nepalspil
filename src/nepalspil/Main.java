@@ -6,25 +6,31 @@ import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
+import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
+import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
 import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
+import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
+import com.jme3.shadow.DirectionalLightShadowFilter;
+import com.jme3.shadow.DirectionalLightShadowRenderer;
+import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * This is the Main Class of your Game. You should only do initialization here.
- * Move your Logic into AppStates or Controls
- * @author normenhansen
+ * 
+ * @author Jacob Nordfalk
  */
 public class Main extends SimpleApplication {
 
@@ -76,28 +82,46 @@ public class Main extends SimpleApplication {
             new Spiller(abishakBrik, "Abishak"),
             new Spiller(bishalBrik, "Bishal")));       
         
-        rootNode.attachChild(assetManager.loadModel("Scenes/spilScene.j3o"));
+        Spatial scene;
+        rootNode.attachChild(scene = assetManager.loadModel("Scenes/spilScene.j3o"));
 
-        //Spatial f1 = rootNode.getChild("Felt1");
-        //abishakBrik.setLocalTranslation(f1.getWorldTranslation());
         
         for (int i=1; ; i++) {
             Spatial felt = rootNode.getChild("Felt"+i);
-            System.out.println("felt= "+ felt);
             if (felt==null) break;
             felt.setUserData("nummer", i);
             felter.add(felt);
         }
         System.out.println("felter= "+ felter);
-                
+
         rootNode.attachChild(laxmiBrik);
         rootNode.attachChild(abishakBrik);
         rootNode.attachChild(bishalBrik);
+    /** A white, directional light source */ 
+    DirectionalLight sun = new DirectionalLight();
+    sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalizeLocal());
+    sun.setColor(ColorRGBA.White);
+    rootNode.addLight(sun); 
+    
+        DirectionalLight l = (DirectionalLight) scene.getLocalLightList().get(0); //  new DirectionalLight();
+        //l.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f));
+        //l.setDirection(new Vector3f(-1, -1, -1));
+        
+        
+        int SHADOWMAP_SIZE = 1024;
+        DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE, 3);
+        dlsr.setLight(l);
+        //dlsr.setLambda(0.055f);
+        dlsr.setShadowIntensity(0.5f);
+        dlsr.setEdgeFilteringMode(EdgeFilteringMode.Bilinear);
+        viewPort.addProcessor(dlsr);
 
+        rootNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
+        rootNode.setCullHint(Spatial.CullHint.Never);
         // Ryk kameraet op og til siden
         cam.setLocation( cam.getLocation().add(2, 3, -3));
         cam.lookAt(new Vector3f(), new Vector3f(0, 1, 0)); // peg det ind på spillepladen
-        
+        flyCam.setMoveSpeed(25);
         
         inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
         inputManager.addListener(actionListener, "shoot");  
@@ -150,7 +174,7 @@ public class Main extends SimpleApplication {
         laxmiMat.setTexture("ColorMap", billede);
         brikGeom.setMaterial(laxmiMat);
         
-        Node fodOgBilledeNode = new Node();
+        Node fodOgBilledeNode = new Node(billede.getName());
         fodOgBilledeNode.attachChild(billedeNode);
         fodOgBilledeNode.attachChild(fod);
         fodOgBilledeNode.scale(0.5f);
@@ -205,17 +229,6 @@ public class Main extends SimpleApplication {
                 sp.rykFra = sp.rykTil;
             }
         }
-
-/*        
-        if (sp.feltNr == 0) {
-            System.out.println("Hurra spilleren er færdig! " + sp.navn );
-        } else {
-            Spatial felt = felter.get(sp.feltNr);
-            sp.node.setLocalTranslation(felt.getLocalTranslation());
-            sp.node.setLocalRotation(felt.getLocalRotation());
-            System.out.println("Rykker "+sp.navn+" til "+felt);                
-        }
-*/
     }
 
     @Override
