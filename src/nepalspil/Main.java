@@ -10,6 +10,7 @@ import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
+import com.jme3.light.Light;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -48,7 +49,6 @@ public class Main extends SimpleApplication {
 
         app.start();
     }
-    private BitmapText infoTekst;
 
     /*
     // Nødvendig?
@@ -81,9 +81,32 @@ public class Main extends SimpleApplication {
         fodOgBilledeNode.scale(0.5f);
         return fodOgBilledeNode;
     }
+    private Node lavSpillerbrik2(Texture billede) {
+        Material fodMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        fodMat.setTexture("DiffuseMap", assetManager.loadTexture("Textures/dirt.jpg"));
+        fodMat.setTexture("NormalMap", assetManager.loadTexture("Textures/dirt.jpg"));
+        fodMat.setTexture("SpecularMap", assetManager.loadTexture("Textures/dirt.jpg"));
+        Spatial fod = assetManager.loadModel("Models/nepalbrik-fod/nepalbrik-fodfbx.j3o");
+        fod.setMaterial(fodMat);
+
+        Geometry brikGeom = new Geometry("Brikbillede", new Box(1, 2, 0.1f));
+        Node billedeNode = new Node();
+        billedeNode.attachChild(brikGeom);
+        billedeNode.setLocalTranslation(0, 3, 0);
+        Material laxmiMat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        laxmiMat.setTexture("DiffuseMap", billede);
+        brikGeom.setMaterial(laxmiMat);
+
+        Node fodOgBilledeNode = new Node(billede.getName());
+        fodOgBilledeNode.attachChild(billedeNode);
+        fodOgBilledeNode.attachChild(fod);
+        fodOgBilledeNode.scale(0.5f);
+        return fodOgBilledeNode;
+    }
     
     ArrayList<Spatial> felter = new ArrayList<>();
     ArrayList<Spiller> spillere = new ArrayList<>();
+    BitmapText infoTekst;
 
     @Override
     public void simpleInitApp() {
@@ -93,25 +116,18 @@ public class Main extends SimpleApplication {
         Node bishalBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-bishal.png"));
         abishakBrik.rotate(0, 10, 0).scale(0.6f);
         bishalBrik.rotate(0, 10, 0).scale(0.6f);;
-        abishakBrik.getLocalTranslation().x += 2;
-        bishalBrik.getLocalTranslation().x -= 3;
+        laxmiBrik.rotate(0, 10, 0).scale(0.6f);;
         
         spillere.addAll(Arrays.asList(
-                new Spiller(manojBrik, "Manoj"),
-                new Spiller(laxmiBrik, "Laxmi"),
-                new Spiller(abishakBrik, "Abishak"),
-                new Spiller(bishalBrik, "Bishal")));
-        rootNode.attachChild(manojBrik);
-        rootNode.attachChild(laxmiBrik);
-        rootNode.attachChild(abishakBrik);
-        rootNode.attachChild(bishalBrik);
+                new Spiller("Manoj", manojBrik),
+                new Spiller("Laxmi", laxmiBrik),
+                new Spiller("Abishak", abishakBrik),
+                new Spiller("Bishal", bishalBrik)));
 
 
-        guiNode.detachAllChildren();
         guiFont = assetManager.loadFont("Interface/Fonts/FreeSans.fnt");
         infoTekst = new BitmapText(guiFont, false);
-        infoTekst.setSize(guiFont.getCharSet().getRenderedSize());
-        infoTekst.setText("Hello World");
+        infoTekst.setText("Her kommer en tekst");
         infoTekst.setLocalTranslation(300, infoTekst.getLineHeight()+30, 0);
         guiNode.attachChild(infoTekst);
          
@@ -126,15 +142,16 @@ public class Main extends SimpleApplication {
             felter.add(felt);
         }
         System.out.println("felter= " + felter);
+        for (Spiller sp : spillere) {
+            rootNode.attachChild(sp.node);
+            sp.ryk.startRykTil(felter.get(0));
+        }
 
-        DirectionalLight sun = new DirectionalLight();
-        sun.setDirection((new Vector3f(-0.5f, -0.5f, -0.5f)).normalizeLocal());
-        sun.setColor(ColorRGBA.White);
-        rootNode.addLight(sun);
+        // Flyt belysning fra scenen over til rootNode - ellers belyses brikkerne ikke som resten!!!!
+        for (Light l : scene.getLocalLightList().clone()) rootNode.addLight(l); 
+        scene.getLocalLightList().clear();
 
-        DirectionalLight l = (DirectionalLight) scene.getLocalLightList().get(0); //  new DirectionalLight();
-        //l.setDirection(new Vector3f(0.5973172f, -0.16583486f, 0.7846725f));
-        //l.setDirection(new Vector3f(-1, -1, -1));
+        DirectionalLight l = (DirectionalLight) rootNode.getLocalLightList().get(0); //  new DirectionalLight();
 
         int SHADOWMAP_SIZE = 1024;
         DirectionalLightShadowRenderer dlsr = new DirectionalLightShadowRenderer(assetManager, SHADOWMAP_SIZE, 3);
@@ -145,7 +162,9 @@ public class Main extends SimpleApplication {
         viewPort.addProcessor(dlsr);
 
         rootNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-        rootNode.setCullHint(Spatial.CullHint.Never);
+/*        */
+
+//        rootNode.setCullHint(Spatial.CullHint.Never);
         // Ryk kameraet op og til siden
         cam.setLocation(cam.getLocation().add(2, 3, -3));
         cam.lookAt(new Vector3f(), new Vector3f(0, 1, 0)); // peg det ind på spillepladen

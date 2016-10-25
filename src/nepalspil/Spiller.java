@@ -22,9 +22,9 @@ class Spiller {
     int feltNr;
     BrikRykKontrol ryk;
 
-    Spiller(Node laxmiBrik, String laxmi) {
-        node = laxmiBrik;
-        navn = laxmi;
+    Spiller(String navn, Node brikNode) {
+        node = brikNode;
+        this.navn = navn;
         ryk = new BrikRykKontrol();
         ryk.setEnabled(false);
         node.addControl(ryk);
