@@ -8,6 +8,7 @@ package nepalspil;
 import com.jme3.math.Transform;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import nepalspil.Main.BrikRykKontrol;
 
 /**
  *
@@ -18,12 +19,16 @@ class Spiller {
     public final Node node;
     public final String navn;
     int feltNr;
-    Transform rykFra;
-    Transform rykTil;
+    BrikRykKontrol ryk;
 
     Spiller(Node laxmiBrik, String laxmi) {
         node = laxmiBrik;
         navn = laxmi;
+        ryk = new BrikRykKontrol();
+        ryk.sp = this;
+        ryk.setEnabled(false);
+        node.addControl(ryk);
+        node.addControl(new BrikRoterKontrol());
     }
     
 }
