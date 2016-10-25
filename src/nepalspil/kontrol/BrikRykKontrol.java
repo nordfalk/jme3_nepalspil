@@ -45,8 +45,7 @@ public class BrikRykKontrol extends AbstractControl {
 
     @Override
     protected void controlUpdate(float tpf) {
-        tpf *= 3;
-        interpolation += tpf;
+        interpolation += 3*tpf;
         if (interpolation > 1) {
             tpf = interpolation - 1;
             interpolation = 1;

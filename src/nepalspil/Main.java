@@ -3,6 +3,9 @@ package nepalspil;
 import com.jme3.app.SimpleApplication;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
+import com.jme3.font.BitmapText;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
@@ -34,16 +37,18 @@ public class Main extends SimpleApplication {
         Main app = new Main();
         app.setShowSettings(false);
 
-        AppSettings settings = new AppSettings(true);
-        settings.put("Width", 1280);
-        settings.put("Height", 720);
-        settings.put("Title", "Nepalspillet - Jacob Nordfalk");
-        settings.put("VSync", true);
-        settings.put("Samples", 4); //Anti-Aliasing
-        app.setSettings(settings);
+        AppSettings cfg = new AppSettings(true);
+        cfg.setFrameRate(60); // set to less than or equal screen refresh rate
+        cfg.setResolution(1280, 720);   
+        cfg.setFrequency(60); // set to screen refresh rate
+        cfg.setTitle("Nepalspillet - Jacob Nordfalk");
+        cfg.setVSync(true);   // prevents page tearing
+        cfg.setSamples(4);    // anti-aliasing
+        app.setSettings(cfg);
 
         app.start();
     }
+    private BitmapText infoTekst;
 
     /*
     // Nødvendig?
@@ -102,6 +107,14 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(bishalBrik);
 
 
+        guiNode.detachAllChildren();
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        infoTekst = new BitmapText(guiFont, false);
+        infoTekst.setSize(guiFont.getCharSet().getRenderedSize()*2);
+        infoTekst.setText("Hello World");
+        infoTekst.setLocalTranslation(300, infoTekst.getLineHeight()+30, 0);
+        guiNode.attachChild(infoTekst);
+         
         Spatial scene = assetManager.loadModel("Scenes/spilScene.j3o");
         rootNode.attachChild(scene);
 
@@ -200,7 +213,12 @@ public class Main extends SimpleApplication {
 
             sp.feltNr = (sp.feltNr + slag) % felter.size();
             sp.ryk.startRykTil(felter.get(sp.feltNr));
-            if (slag==6) sp.node.getControl(BrikRoterKontrol.class).roterEtSekund();
+            if (slag==6) {
+                sp.node.getControl(BrikRoterKontrol.class).roterEtSekund();
+                infoTekst.setText(sp.navn + " slog en 6'er!");
+            } else {
+                infoTekst.setText(sp.navn + " rykker til felt "+sp.feltNr);                
+            }
         }
     }
     
