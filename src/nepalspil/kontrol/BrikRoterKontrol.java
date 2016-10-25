@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nepalspil;
+package nepalspil.kontrol;
 
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
@@ -14,7 +14,7 @@ import com.jme3.scene.control.Control;
  *
  * @author j
  */
-class BrikRoterKontrol extends AbstractControl {
+public class BrikRoterKontrol extends AbstractControl {
     float rotTid = 1;
 
     @Override
@@ -28,7 +28,7 @@ class BrikRoterKontrol extends AbstractControl {
         }
     }
 
-    void roterEtSekund() {
+    public void roterEtSekund() {
         rotTid = 0;
         setEnabled(true);
     }

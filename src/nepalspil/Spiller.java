@@ -5,10 +5,11 @@
  */
 package nepalspil;
 
+import nepalspil.kontrol.BrikRoterKontrol;
 import com.jme3.math.Transform;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import nepalspil.Main.BrikRykKontrol;
+import nepalspil.kontrol.BrikRykKontrol;
 
 /**
  *
@@ -25,7 +26,6 @@ class Spiller {
         node = laxmiBrik;
         navn = laxmi;
         ryk = new BrikRykKontrol();
-        ryk.sp = this;
         ryk.setEnabled(false);
         node.addControl(ryk);
         node.addControl(new BrikRoterKontrol());

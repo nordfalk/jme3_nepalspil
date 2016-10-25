@@ -9,26 +9,20 @@ import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
-import com.jme3.post.FilterPostProcessor;
 import com.jme3.renderer.RenderManager;
-import com.jme3.renderer.ViewPort;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.shape.Box;
-import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import java.util.ArrayList;
 import java.util.Arrays;
+import nepalspil.kontrol.BrikRoterKontrol;
 
 /**
  *
@@ -204,54 +198,12 @@ public class Main extends SimpleApplication {
             Spiller sp = spillere.get((int) (Math.random() * spillere.size()));
             int slag = 1 + (int) (6 * Math.random());
 
-            sp.ryk.fra = felter.get(sp.feltNr).getLocalTransform();
             sp.feltNr = (sp.feltNr + slag) % felter.size();
-            sp.ryk.til = felter.get(sp.feltNr).getLocalTransform().clone(); // Variér position lidt
-            sp.ryk.til.getTranslation().addLocal(FastMath.rand.nextFloat() / 5 - 0.1f, 0, FastMath.rand.nextFloat() / 5 - 0.1f);
-            Spatial felt = felter.get(sp.feltNr);
-
-            sp.node.setLocalTranslation(felt.getLocalTranslation());
-            sp.node.setLocalRotation(felt.getLocalRotation());
-            sp.ryk.setEnabled(true);
-            sp.ryk.interpolation = 0;
+            sp.ryk.startRykTil(felter.get(sp.feltNr));
             if (slag==6) sp.node.getControl(BrikRoterKontrol.class).roterEtSekund();
         }
     }
     
-    static class BrikRykKontrol extends AbstractControl {
-        float interpolation = 1;
-        Transform fra;
-        Transform til;
-        Spiller sp;
-
-        @Override
-        protected void controlUpdate(float tpf) {
-            interpolation += tpf * 3;
-            if (interpolation > 1) {
-                interpolation = 1;
-            }
-            float inter = interpolation;
-            inter = (inter * inter);
-            //inter = (inter*inter*inter + 1-(1-inter)*(1-inter)*(1-inter))/2;
-            //System.out.printf("interpolation=%.2f  inter=%.2f\n", interpolation, inter);
-            Transform spt = sp.node.getLocalTransform();
-            //spt.interpolateTransforms(sp.ryk.fra, sp.ryk.til, interpolation); // ryk uden at hoppe
-            spt.getRotation().slerp(sp.ryk.fra.getRotation(), sp.ryk.til.getRotation(), inter);
-            Vector3f fra = sp.ryk.fra.getTranslation();
-            Vector3f til = sp.ryk.til.getTranslation();
-            Vector3f midt = fra.clone().interpolateLocal(til, 0.5f).add(0, 1, 0);
-            FastMath.interpolateBezier(inter, fra, midt, midt, til, spt.getTranslation());
-            sp.node.setLocalTransform(spt);
-            if (interpolation == 1) {
-                sp.ryk.fra = sp.ryk.til;
-                setEnabled(false);
-            }
-        }
-
-        @Override
-        protected void controlRender(RenderManager rm, ViewPort vp) {
-        }        
-    }
 
 
     @Override
