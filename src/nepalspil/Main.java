@@ -108,9 +108,9 @@ public class Main extends SimpleApplication {
 
 
         guiNode.detachAllChildren();
-        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        guiFont = assetManager.loadFont("Interface/Fonts/FreeSans.fnt");
         infoTekst = new BitmapText(guiFont, false);
-        infoTekst.setSize(guiFont.getCharSet().getRenderedSize()*2);
+        infoTekst.setSize(guiFont.getCharSet().getRenderedSize());
         infoTekst.setText("Hello World");
         infoTekst.setLocalTranslation(300, infoTekst.getLineHeight()+30, 0);
         guiNode.attachChild(infoTekst);
