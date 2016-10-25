@@ -114,9 +114,9 @@ public class Main extends SimpleApplication {
         Node laxmiBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-laxmi.png"));
         Node abishakBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-abishak.png"));
         Node bishalBrik = lavSpillerbrik(assetManager.loadTexture("Textures/klippet-bishal.png"));
-        abishakBrik.rotate(0, 10, 0).scale(0.6f);
-        bishalBrik.rotate(0, 10, 0).scale(0.6f);;
-        laxmiBrik.rotate(0, 10, 0).scale(0.6f);;
+        abishakBrik.rotate(0, 10, 0).scale(0.5f);
+        bishalBrik.rotate(0, 10, 0).scale(0.5f);;
+        laxmiBrik.rotate(0, 10, 0).scale(0.5f);;
         
         spillere.addAll(Arrays.asList(
                 new Spiller("Manoj", manojBrik),
@@ -136,9 +136,7 @@ public class Main extends SimpleApplication {
 
         for (int i = 1;; i++) {
             Spatial felt = rootNode.getChild("Felt" + i);
-            if (felt == null) {
-                break;
-            }
+            if (felt == null) break;
             felter.add(felt);
         }
         System.out.println("felter= " + felter);
@@ -146,7 +144,7 @@ public class Main extends SimpleApplication {
             rootNode.attachChild(sp.node);
             sp.ryk.startRykTil(felter.get(0));
         }
-
+        
         // Flyt belysning fra scenen over til rootNode - ellers belyses brikkerne ikke som resten!!!!
         for (Light l : scene.getLocalLightList().clone()) rootNode.addLight(l); 
         scene.getLocalLightList().clear();

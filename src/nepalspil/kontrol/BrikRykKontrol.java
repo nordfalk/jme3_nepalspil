@@ -6,7 +6,6 @@
 package nepalspil.kontrol;
 
 import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Transform;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.RenderManager;
@@ -26,13 +25,18 @@ public class BrikRykKontrol extends AbstractControl {
     private Vector3f fraV;
     private Vector3f tilV;
     private Vector3f midtV = new Vector3f();
+    private Spatial felt;
     
-    public void startRykTil(Spatial tilFelt) {
+    public void startRykTil(Spatial nytFelt) {
+        if (felt!=null) læsSkrivAntalSpillere(felt, -1);
+        felt = nytFelt;
+        Integer spillerePåFeltet = læsSkrivAntalSpillere(felt, 1);
+        
         // kloning og tildeling laver nye kopier af objekterne, så i stedet kopierer vi værdierne ind i forudoprettede opjekter
         fraT.set(spatial.getLocalTransform());
-        tilT.set(tilFelt.getLocalTransform()); 
-        // Variér til-position lidt
-        tilT.getTranslation().addLocal(FastMath.rand.nextFloat() / 5 - 0.1f, 0, FastMath.rand.nextFloat() / 5 - 0.1f);
+        tilT.set(felt.getLocalTransform()); 
+        // Brikker på samme felt placeres lidt forskudt fra hinanden
+        tilT.getTranslation().addLocal(tilT.getRotation().mult(Vector3f.UNIT_Z).mult(-spillerePåFeltet));
 
         fraV = fraT.getTranslation();
         tilV = tilT.getTranslation();
@@ -41,6 +45,13 @@ public class BrikRykKontrol extends AbstractControl {
         
         interpolation = 0;
         setEnabled(true);
+    }
+
+    private Integer læsSkrivAntalSpillere(Spatial tilFelt, int delta) {
+        Integer spillerePåFeltet = tilFelt.getUserData("spillere");
+        if (spillerePåFeltet==null) spillerePåFeltet = 0;
+        tilFelt.setUserData("spillere", spillerePåFeltet+delta);
+        return spillerePåFeltet;
     }
 
     @Override
