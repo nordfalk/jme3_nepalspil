@@ -47,6 +47,7 @@ public class MainActivity extends Activity {
         public JmeFragment() {
             // Set main project class (fully qualified path)
             appClass = "nepalspil.Main";
+            nepalspil.Main.ANDROID_WORKAROUND = true;
  
             // Set the desired EGL configuration
             eglBitsPerPixel = 24;

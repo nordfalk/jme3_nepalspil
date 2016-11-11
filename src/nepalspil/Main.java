@@ -41,6 +41,7 @@ import nepalspil.kontrol.BrikStøvKontrol;
  * @author Jacob Nordfalk
  */
 public class Main extends SimpleApplication {
+    public static boolean ANDROID_WORKAROUND;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -58,16 +59,6 @@ public class Main extends SimpleApplication {
         app.start();
     }
 
-    /*
-    // Nødvendig?
-    @Override
-    public void setSettings(AppSettings settings) {
-        settings.setRenderer(AppSettings.LWJGL_OPENGL3);
-        settings.setAudioRenderer(AppSettings.ANDROID_MEDIAPLAYER);
-        System.out.println("XXX setSettings "+settings);
-        super.setSettings(settings); 
-    }
-     */
 
     private Node lavSpillerbrik(Texture billede) {
         Material fodMat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
@@ -139,12 +130,14 @@ public class Main extends SimpleApplication {
         infoTekst.setLocalTranslation(300, infoTekst.getLineHeight()+30, 0);
         guiNode.attachChild(infoTekst);
         
-/*
         // Workaround for missing texture because of wrong path in the .j3o files created by the JME3 scene editor
         // See https://github.com/jMonkeyEngine/jmonkeyengine/issues/352
-        AssetManager assetManager = getAssetManager();
-        assetManager.unregisterLocator("/", AndroidLocator.class);
-        assetManager.registerLocator("", AndroidLocator.class);
+        if (ANDROID_WORKAROUND) {
+            AssetManager assetManager = getAssetManager();
+            assetManager.unregisterLocator("/", AndroidLocator.class);
+            assetManager.registerLocator("", AndroidLocator.class);
+        }
+/*
 */
         Spatial scene = assetManager.loadModel("Scenes/spilScene.j3o");
         rootNode.attachChild(scene);
