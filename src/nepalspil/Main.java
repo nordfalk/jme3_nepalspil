@@ -1,6 +1,8 @@
 package nepalspil;
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.asset.AssetManager;
+import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
@@ -11,6 +13,7 @@ import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
+import com.jme3.material.MatParam;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
@@ -23,10 +26,15 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
+import com.jme3.terrain.geomipmap.TerrainPatch;
+import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.texture.Texture;
+import com.jme3.texture.Texture2D;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import nepalspil.kontrol.BrikRoterKontrol;
+import nepalspil.kontrol.BrikStøvKontrol;
 
 /**
  *
@@ -130,7 +138,14 @@ public class Main extends SimpleApplication {
         infoTekst.setText("Her kommer en tekst");
         infoTekst.setLocalTranslation(300, infoTekst.getLineHeight()+30, 0);
         guiNode.attachChild(infoTekst);
-         
+        
+/*
+        // Workaround for missing texture because of wrong path in the .j3o files created by the JME3 scene editor
+        // See https://github.com/jMonkeyEngine/jmonkeyengine/issues/352
+        AssetManager assetManager = getAssetManager();
+        assetManager.unregisterLocator("/", AndroidLocator.class);
+        assetManager.registerLocator("", AndroidLocator.class);
+*/
         Spatial scene = assetManager.loadModel("Scenes/spilScene.j3o");
         rootNode.attachChild(scene);
 
@@ -143,8 +158,9 @@ public class Main extends SimpleApplication {
         for (Spiller sp : spillere) {
             rootNode.attachChild(sp.node);
             sp.ryk.startRykTil(felter.get(0));
+            sp.node.addControl(new BrikStøvKontrol(assetManager, sp.node));
         }
-        
+/*        
         // Flyt belysning fra scenen over til rootNode - ellers belyses brikkerne ikke som resten!!!!
         for (Light l : scene.getLocalLightList().clone()) rootNode.addLight(l); 
         scene.getLocalLightList().clear();
@@ -231,11 +247,12 @@ public class Main extends SimpleApplication {
             sp.feltNr = (sp.feltNr + slag) % felter.size();
             sp.ryk.startRykTil(felter.get(sp.feltNr));
             if (slag==6) {
-                sp.node.getControl(BrikRoterKontrol.class).roterEtSekund();
+                sp.node.getControl(BrikRoterKontrol.class).start();
                 infoTekst.setText(sp.navn + " slog en 6'er!");
             } else {
                 infoTekst.setText(sp.navn + " rykker til felt "+sp.feltNr);                
             }
+            if (slag >= 5) sp.ryk.støvNårDenLander = true;
         }
     }
     
@@ -245,4 +262,4 @@ public class Main extends SimpleApplication {
     public void simpleRender(RenderManager rm) {
         //TODO: add render code
     }
-}
+            }

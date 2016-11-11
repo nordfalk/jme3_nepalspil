@@ -26,11 +26,12 @@ public class BrikRykKontrol extends AbstractControl {
     private Vector3f tilV;
     private Vector3f midtV = new Vector3f();
     private Spatial felt;
+    public boolean støvNårDenLander;
     
-    public void startRykTil(Spatial nytFelt) {
+    public void startRykTil(Spatial målfelt) {
         if (felt!=null) læsSkrivAntalSpillere(felt, -1);
-        felt = nytFelt;
-        Integer spillerePåFeltet = læsSkrivAntalSpillere(felt, 1);
+        Integer spillerePåFeltet = læsSkrivAntalSpillere(målfelt, 1);
+        felt = målfelt;
         
         // kloning og tildeling laver nye kopier af objekterne, så i stedet kopierer vi værdierne ind i forudoprettede opjekter
         fraT.set(spatial.getLocalTransform());
@@ -57,7 +58,7 @@ public class BrikRykKontrol extends AbstractControl {
     @Override
     protected void controlUpdate(float tpf) {
         interpolation += 3*tpf;
-        if (interpolation > 1) {
+        if (interpolation >= 1) {
             tpf = interpolation - 1;
             interpolation = 1;
             setEnabled(false);
@@ -71,6 +72,10 @@ public class BrikRykKontrol extends AbstractControl {
         brikT.getRotation().slerp(fraT.getRotation(), tilT.getRotation(), inter);
         spatial.setLocalTransform(brikT);
 
+        if (interpolation==1) {
+            if (støvNårDenLander) spatial.getControl(BrikStøvKontrol.class).start();            
+            støvNårDenLander = false;
+        }
     }
 
     @Override

@@ -39,10 +39,10 @@ public class MainActivity extends Activity {
                 (AndroidHarnessFragment) fm.findFragmentById(R.id.jmeFragment);
  
         // uncomment the next line to add the default android profiler to the project
-        //jmeFragment.getJmeApplication().setAppProfiler(new DefaultAndroidProfiler());
+        //jmeFragment.getJmeApplication().setAppProfiler(new DefaultAndroidProfiler());        
     }
- 
- 
+
+    
     public static class JmeFragment extends AndroidHarnessFragment {
         public JmeFragment() {
             // Set main project class (fully qualified path)
@@ -82,5 +82,5 @@ public class MainActivity extends Activity {
             //     splashPicID = R.drawable.splash;
             splashPicID = 0;
         }
+        }
     }
-}

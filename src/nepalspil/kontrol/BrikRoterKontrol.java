@@ -28,7 +28,7 @@ public class BrikRoterKontrol extends AbstractControl {
         }
     }
 
-    public void roterEtSekund() {
+    public void start() {
         rotTid = 0;
         setEnabled(true);
     }
