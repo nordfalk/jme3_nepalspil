@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package nepalspil;
+package dk.nordfalk.nepalspil;
 
 import nepalspil.kontrol.BrikRoterKontrol;
 import com.jme3.math.Transform;

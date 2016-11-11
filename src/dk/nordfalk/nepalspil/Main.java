@@ -1,4 +1,4 @@
-package nepalspil;
+package dk.nordfalk.nepalspil;
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.asset.AssetManager;
@@ -130,12 +130,15 @@ public class Main extends SimpleApplication {
         infoTekst.setLocalTranslation(300, infoTekst.getLineHeight()+30, 0);
         guiNode.attachChild(infoTekst);
         
-        // Workaround for missing texture because of wrong path in the .j3o files created by the JME3 scene editor
-        // See https://github.com/jMonkeyEngine/jmonkeyengine/issues/352
         if (ANDROID_WORKAROUND) {
+            // Workaround for missing texture because of wrong path in the .j3o files created by the JME3 scene editor
+            // See https://github.com/jMonkeyEngine/jmonkeyengine/issues/352
             AssetManager assetManager = getAssetManager();
             assetManager.unregisterLocator("/", AndroidLocator.class);
             assetManager.registerLocator("", AndroidLocator.class);
+            
+            // Culling is too aggressive in GVR - so disable it for now
+            rootNode.setCullHint(Spatial.CullHint.Never);
         }
 /*
 */
@@ -173,7 +176,7 @@ public class Main extends SimpleApplication {
 
 //        rootNode.setCullHint(Spatial.CullHint.Never);
         // Ryk kameraet op og til siden
-        cam.setLocation(cam.getLocation().add(2, 3, -3));
+        cam.setLocation( cam.getLocation().add(-2, 4, -4));
         cam.lookAt(new Vector3f(), new Vector3f(0, 1, 0)); // peg det ind på spillepladen
         flyCam.setMoveSpeed(25);
 

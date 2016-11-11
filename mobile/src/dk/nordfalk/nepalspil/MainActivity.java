@@ -46,7 +46,7 @@ public class MainActivity extends Activity {
     public static class JmeFragment extends AndroidHarnessFragment {
         public JmeFragment() {
             // Set main project class (fully qualified path)
-            appClass = "nepalspil.Main";
+            appClass = "dk.nordfalk.nepalspil.Main";
             nepalspil.Main.ANDROID_WORKAROUND = true;
  
             // Set the desired EGL configuration
