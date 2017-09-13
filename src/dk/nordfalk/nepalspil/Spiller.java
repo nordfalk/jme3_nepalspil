@@ -5,11 +5,12 @@
  */
 package dk.nordfalk.nepalspil;
 
-import nepalspil.kontrol.BrikRoterKontrol;
 import com.jme3.math.Transform;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import nepalspil.kontrol.BrikRykKontrol;
+
+import dk.nordfalk.nepalspil.kontrol.BrikRoterKontrol;
+import dk.nordfalk.nepalspil.kontrol.BrikRykKontrol;
 
 /**
  *

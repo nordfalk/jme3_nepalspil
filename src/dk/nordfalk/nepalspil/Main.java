@@ -5,19 +5,14 @@ import com.jme3.asset.AssetManager;
 import com.jme3.asset.plugins.AndroidLocator;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.effect.ParticleEmitter;
-import com.jme3.effect.ParticleMesh;
 import com.jme3.font.BitmapText;
 import com.jme3.input.MouseInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.MouseButtonTrigger;
 import com.jme3.light.DirectionalLight;
 import com.jme3.light.Light;
-import com.jme3.material.MatParam;
 import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
@@ -26,15 +21,13 @@ import com.jme3.scene.shape.Box;
 import com.jme3.shadow.DirectionalLightShadowRenderer;
 import com.jme3.shadow.EdgeFilteringMode;
 import com.jme3.system.AppSettings;
-import com.jme3.terrain.geomipmap.TerrainPatch;
-import com.jme3.terrain.geomipmap.TerrainQuad;
 import com.jme3.texture.Texture;
-import com.jme3.texture.Texture2D;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
-import nepalspil.kontrol.BrikRoterKontrol;
-import nepalspil.kontrol.BrikStøvKontrol;
+
+import dk.nordfalk.nepalspil.kontrol.BrikRoterKontrol;
+import dk.nordfalk.nepalspil.kontrol.BrikStøvKontrol;
 
 /**
  *
@@ -42,6 +35,12 @@ import nepalspil.kontrol.BrikStøvKontrol;
  */
 public class Main extends SimpleApplication {
     public static boolean ANDROID_WORKAROUND;
+
+    private ArrayList<Spatial> felter = new ArrayList<>();
+    private ArrayList<Spiller> spillere = new ArrayList<>();
+    float tidTilRyk = 1;
+
+    BitmapText infoTekst;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -103,9 +102,6 @@ public class Main extends SimpleApplication {
         return fodOgBilledeNode;
     }
     
-    ArrayList<Spatial> felter = new ArrayList<>();
-    ArrayList<Spiller> spillere = new ArrayList<>();
-    BitmapText infoTekst;
 
     @Override
     public void simpleInitApp() {
@@ -123,6 +119,16 @@ public class Main extends SimpleApplication {
                 new Spiller("Abishak", abishakBrik),
                 new Spiller("Bishal", bishalBrik)));
 
+        if (ANDROID_WORKAROUND) {
+            // Workaround for missing texture because of wrong path in the .j3o files created by the JME3 scene editor
+            // See https://github.com/jMonkeyEngine/jmonkeyengine/issues/352
+            AssetManager assetManager = getAssetManager();
+            assetManager.unregisterLocator("/", AndroidLocator.class);
+            assetManager.registerLocator("", AndroidLocator.class);
+
+            // Culling is too aggressive in GVR - so disable it for now
+            rootNode.setCullHint(Spatial.CullHint.Never);
+        }
 
         guiFont = assetManager.loadFont("Interface/Fonts/FreeSans.fnt");
         infoTekst = new BitmapText(guiFont, false);
@@ -130,18 +136,6 @@ public class Main extends SimpleApplication {
         infoTekst.setLocalTranslation(300, infoTekst.getLineHeight()+30, 0);
         guiNode.attachChild(infoTekst);
         
-        if (ANDROID_WORKAROUND) {
-            // Workaround for missing texture because of wrong path in the .j3o files created by the JME3 scene editor
-            // See https://github.com/jMonkeyEngine/jmonkeyengine/issues/352
-            AssetManager assetManager = getAssetManager();
-            assetManager.unregisterLocator("/", AndroidLocator.class);
-            assetManager.registerLocator("", AndroidLocator.class);
-            
-            // Culling is too aggressive in GVR - so disable it for now
-            rootNode.setCullHint(Spatial.CullHint.Never);
-        }
-/*
-*/
         Spatial scene = assetManager.loadModel("Scenes/spilScene.j3o");
         rootNode.attachChild(scene);
 
@@ -187,7 +181,7 @@ public class Main extends SimpleApplication {
     }
 
     private ActionListener actionListener = new ActionListener() {
-        @Override
+    @Override
         public void onAction(String name, boolean keyPressed, float tpf) {
             if (name.equals("shoot") && !keyPressed) {
                 makeCannonBall();
@@ -226,8 +220,6 @@ public class Main extends SimpleApplication {
          */
         ball_phy.setLinearVelocity(cam.getDirection().mult(25).add(0, 5, 0));
     }
-
-    float tidTilRyk = 1;
     
     @Override
     public void simpleUpdate(float tpf) {
@@ -251,11 +243,4 @@ public class Main extends SimpleApplication {
             if (slag >= 5) sp.ryk.støvNårDenLander = true;
         }
     }
-    
-
-
-    @Override
-    public void simpleRender(RenderManager rm) {
-        //TODO: add render code
-    }
-            }
+}
